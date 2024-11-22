@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections;
 using System.Text;
-using System.Threading.Tasks;
 
 public class BinaryAVLTree<T> : IMyData<T> where T : IComparable<T>
 {
@@ -31,7 +27,7 @@ public class BinaryAVLTree<T> : IMyData<T> where T : IComparable<T>
 
     public void Inverse()
     {
-        isInverse =! isInverse;
+        isInverse = !isInverse;
         if (root == null) return;
 
         Stack<NodeTree<T>> stack = new Stack<NodeTree<T>>();
@@ -82,7 +78,7 @@ public class BinaryAVLTree<T> : IMyData<T> where T : IComparable<T>
         {
             if (cur.Value.CompareTo(value) == 0)
                 break;
-            if(IsMinStep(value, cur, isInverse))
+            if (IsMinStep(value, cur, isInverse))
             {
                 if (cur.left == null)
                 {
@@ -177,7 +173,7 @@ public class BinaryAVLTree<T> : IMyData<T> where T : IComparable<T>
         if (node == null)
             return null;
 
-        if(isInverse)
+        if (isInverse)
         {
             while (node.right != null)
                 node = node.right;
@@ -258,8 +254,8 @@ public class BinaryAVLTree<T> : IMyData<T> where T : IComparable<T>
 
         return pivot;
     }
-    
-    private int MaxHeightNode(NodeTree<T> started) 
+
+    private int MaxHeightNode(NodeTree<T> started)
     {
         if (started == null) return 0;
 
@@ -283,7 +279,7 @@ public class BinaryAVLTree<T> : IMyData<T> where T : IComparable<T>
     private int MinHeightNode(NodeTree<T> started)
     {
         if (started == null) return 0;
-        if (started.left == null && started.right == null) return 1; 
+        if (started.left == null && started.right == null) return 1;
 
         Stack<(NodeTree<T> node, int depth)> stack = new Stack<(NodeTree<T>, int)>();
         stack.Push((started, 1));
@@ -327,7 +323,7 @@ public class BinaryAVLTree<T> : IMyData<T> where T : IComparable<T>
     public T Find(T value)
     {
         var node = FindNode(root, value);
-        if(node == null)
+        if (node == null)
             return default(T);
         return node.Value;
     }
@@ -401,7 +397,7 @@ public class BinaryAVLTree<T> : IMyData<T> where T : IComparable<T>
         List<NodeTree<T>[]> resultTree = new List<NodeTree<T>[]>();
 
         Stack<NodeTree<T>[]> stack = new Stack<NodeTree<T>[]>();
-        stack.Push(new NodeTree<T>[] { root } );
+        stack.Push(new NodeTree<T>[] { root });
         while (stack.Count > 0)
         {
             NodeTree<T>[] nodes = stack.Pop();
@@ -410,7 +406,7 @@ public class BinaryAVLTree<T> : IMyData<T> where T : IComparable<T>
 
             foreach (NodeTree<T> node in nodes)
             {
-                if(node == null)
+                if (node == null)
                 {
                     currentLevel.Add(null);
                     currentLevel.Add(null);
@@ -438,11 +434,11 @@ public class BinaryAVLTree<T> : IMyData<T> where T : IComparable<T>
             {
                 if (node == null)
                 {
-                    builder.Append(new string(' ', betweenSpaces + 1)); 
+                    builder.Append(new string(' ', betweenSpaces + 1));
                 }
                 else
                 {
-                    builder.Append(node.Value.ToString().PadRight(betweenSpaces + 1)); 
+                    builder.Append(node.Value.ToString().PadRight(betweenSpaces + 1));
                 }
             }
             builder.AppendLine();
@@ -464,7 +460,7 @@ public class BinaryAVLTree<T> : IMyData<T> where T : IComparable<T>
                         builder.Append('\u2557');
                         int len = betweenSpaces - lineLength * 2 - i;
                         if (len < 0) len = 0;
-                        builder.Append(new string(' ', len ));
+                        builder.Append(new string(' ', len));
                     }
                     else
                     {

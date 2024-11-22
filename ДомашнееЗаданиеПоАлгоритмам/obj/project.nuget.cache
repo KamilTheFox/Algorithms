@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "qegCFH1sUSGJ2A6T2JHFgsUWXgH44CIkg1N503T27y4R6M9Ls0WkpVa9CQnBQv7PyvP/lT8EHdCjUevvdE96Sw==",
+  "dgSpecHash": "gfXsDJRjCG76uX1eRVhL8eYf1hSc0gZwif9lF30uIVOFZTRzPmgzmB0ADwJiiJYlw5mSY4lrQFiGjz1jHOKYbg==",
   "success": true,
   "projectFilePath": "D:\\C Sharp\\ДомашнееЗаданиеПоАлгоритмам\\ДомашнееЗаданиеПоАлгоритмам\\ДомашнееЗаданиеПоАлгоритмам.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\User\\.nuget\\packages\\mathnet.numerics\\5.0.0\\mathnet.numerics.5.0.0.nupkg.sha512"
+  ],
   "logs": []
 }

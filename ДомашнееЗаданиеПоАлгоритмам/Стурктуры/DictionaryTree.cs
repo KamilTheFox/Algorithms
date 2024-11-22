@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 //Словарик хранящий ключ - значение. Реализация 2х системных интерфейсов для итерации по foreach и реализация словаря IDictionary
 public class DictionaryTree<Key,Value> : IEnumerable<DictionaryTree<Key, Value>.MyKeyValuePairs>, IDictionary<Key,Value>
@@ -69,10 +64,10 @@ public class DictionaryTree<Key,Value> : IEnumerable<DictionaryTree<Key, Value>.
         switch (index)
         {
             case 0:
-            dataBase = new RedBlackTree1<MyKeyValuePairs>();
+            dataBase = new RedBlackTreeFake<MyKeyValuePairs>();
                 break;
             case 1:
-                dataBase = new RedBlackTree2<MyKeyValuePairs>();
+                dataBase = new RedBlackTree<MyKeyValuePairs>();
                 break;
             case 2:
             dataBase = new BinaryAVLTree<MyKeyValuePairs>();
@@ -178,4 +173,5 @@ public class DictionaryTree<Key,Value> : IEnumerable<DictionaryTree<Key, Value>.
     {
         return Remove(item.Key);
     }
+
 }

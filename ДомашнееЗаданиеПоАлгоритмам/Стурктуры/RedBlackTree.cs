@@ -1,13 +1,18 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
-public class RedBlackTree2<T> : BinaryAVLTree<T> where T : IComparable<T>
+public class RedBlackTree<T> : BinaryAVLTree<T> where T : IComparable<T>
 {
-    protected new NodeTreeRedBlack<T> root;
+    protected NodeTreeRedBlack<T> Root
+    {
+        get
+        {
+            return (NodeTreeRedBlack<T>)root;
+        }
+        set
+        {
+            root = value;
+        }
+    }
     private const bool RED = true;
     private const bool BLACK = false;
 
@@ -15,22 +20,22 @@ public class RedBlackTree2<T> : BinaryAVLTree<T> where T : IComparable<T>
     {
         var newNode = new NodeTreeRedBlack<T>(value);
 
-        if (root == null)
+        if (Root == null)
         {
-            root = newNode;
-            root.Color = BLACK;
+            Root = newNode;
+            Root.Color = BLACK;
             Count++;
             return;
         }
 
-        InsertNode(newNode);
+        AddNode(newNode);
         Count++;
     }
 
-    private void InsertNode(NodeTreeRedBlack<T> node)
+    private void AddNode(NodeTreeRedBlack<T> node)
     {
         // Стандартная вставка BST
-        NodeTreeRedBlack<T> current = root;
+        NodeTreeRedBlack<T> current = Root;
         NodeTreeRedBlack<T> parent = null;
 
         while (current != null)
@@ -50,13 +55,13 @@ public class RedBlackTree2<T> : BinaryAVLTree<T> where T : IComparable<T>
             parent.right = node;
 
         node.Color = RED;
-        InsertFixup(node);
+        AddFixup(node);
     }
 
-    private void InsertFixup(NodeTreeRedBlack<T> node)
+    private void AddFixup(NodeTreeRedBlack<T> node)
     {
         // Пока не дошли до корня и родитель красный
-        while (node != root && node.Parent.Color == RED)
+        while (node != Root && node.Parent.Color == RED)
         {
             if (node.Parent == node.Parent.Parent?.Left)
             {
@@ -111,28 +116,25 @@ public class RedBlackTree2<T> : BinaryAVLTree<T> where T : IComparable<T>
             }
         }
 
-        root.Color = BLACK;
+        Root.Color = BLACK;
     }
 
     private void LeftRotate(NodeTreeRedBlack<T> x)
     {
         var y = x.Right;
 
-        // Установка левого поддерева y
         x.right = y.left;
         if (y.Left != null)
             y.Left.Parent = x;
 
-        // Связывание родителя x с y
         y.Parent = x.Parent;
         if (x.Parent == null)
-            root = y;
+            Root = y;
         else if (x == x.Parent.Left)
             x.Parent.left = y;
         else
             x.Parent.right = y;
 
-        // Помещаем x слева от y
         y.left = x;
         x.Parent = y;
     }
@@ -141,21 +143,18 @@ public class RedBlackTree2<T> : BinaryAVLTree<T> where T : IComparable<T>
     {
         var x = y.Left;
 
-        // Установка правого поддерева x
         y.left = x.right;
         if (x.Right != null)
             x.Right.Parent = y;
 
-        // Связывание родителя y с x
         x.Parent = y.Parent;
         if (y.Parent == null)
-            root = x;
+            Root = x;
         else if (y == y.Parent.Right)
             y.Parent.right = x;
         else
             y.Parent.left = x;
 
-        // Помещаем y справа от x
         x.right = y;
         y.Parent = x;
     }
@@ -199,23 +198,6 @@ public class RedBlackTree2<T> : BinaryAVLTree<T> where T : IComparable<T>
         return AreRedNodesValid(node.Left) && AreRedNodesValid(node.Right);
     }
 
-    public bool ValidateTree()
-    {
-        if (root == null)
-            return true;
-
-        // Проверка 1: Корень должен быть черным
-        if (root.Color != BLACK)
-            return false;
-
-        // Проверка 2: Красные узлы должны иметь черных детей
-        if (!AreRedNodesValid(root))
-            return false;
-
-        // Проверка 3: Черная высота должна быть одинаковой
-        int blackHeight = 0;
-        return IsBlackHeightValid(root, ref blackHeight);
-    }
     private int GetBlackHeight(NodeTreeRedBlack<T> node)
     {
         if (node == null)
@@ -223,11 +205,174 @@ public class RedBlackTree2<T> : BinaryAVLTree<T> where T : IComparable<T>
 
         int leftHeight = GetBlackHeight(node.Left);
         int rightHeight = GetBlackHeight(node.Right);
-
         if (leftHeight != rightHeight)
             return -1;
 
         return leftHeight + (node.Color == BLACK ? 1 : 0);
+    }
+    public override void Remove(T value)
+    {
+        var nodeToDelete = (NodeTreeRedBlack<T>)FindNode(Root, value);
+        if (nodeToDelete == null) return;
+
+        var originalColor = nodeToDelete.Color;
+        NodeTreeRedBlack<T> replacementNode;
+        NodeTreeRedBlack<T> fixupNode;
+
+        // Случай 1: Узел без детей или только с одним ребенком
+        if (nodeToDelete.Left == null)
+        {
+            fixupNode = nodeToDelete.Right;
+            TransplantNode(nodeToDelete, nodeToDelete.Right);
+        }
+        else if (nodeToDelete.Right == null)
+        {
+            fixupNode = nodeToDelete.Left;
+            TransplantNode(nodeToDelete, nodeToDelete.Left);
+        }
+        // Случай 2: Узел с двумя детьми
+        else
+        {
+            // Находим преемника (минимальный узел в правом поддереве)
+            var successor = FindMin(nodeToDelete.Right);
+            originalColor = successor.Color;
+            fixupNode = successor.Right;
+
+            if (successor.Parent == nodeToDelete)
+            {
+                if (fixupNode != null)
+                    fixupNode.Parent = successor;
+            }
+            else
+            {
+                TransplantNode(successor, successor.Right);
+                successor.right = nodeToDelete.Right;
+                successor.Right.Parent = successor;
+            }
+
+            TransplantNode(nodeToDelete, successor);
+            successor.left = nodeToDelete.Left;
+            successor.Left.Parent = successor;
+            successor.Color = nodeToDelete.Color;
+        }
+
+        Count--;
+
+        // Если удалили черный узел, нужно восстановить свойства дерева
+        if (originalColor == BLACK && fixupNode != null)
+        {
+            RemoveFixup(fixupNode);
+        }
+    }
+
+    private void RemoveFixup(NodeTreeRedBlack<T> node)
+    {
+        while (node != Root && GetColor(node) == BLACK)
+        {
+            if (node == node.Parent.Left)
+            {
+                var sibling = node.Parent.Right;
+
+                // Случай 1: Брат красный
+                if (GetColor(sibling) == RED)
+                {
+                    sibling.Color = BLACK;
+                    node.Parent.Color = RED;
+                    LeftRotate(node.Parent);
+                    sibling = node.Parent.Right;
+                }
+
+                // Случай 2: Оба ребенка брата черные
+                if (GetColor(sibling.Left) == BLACK && GetColor(sibling.Right) == BLACK)
+                {
+                    sibling.Color = RED;
+                    node = node.Parent;
+                }
+                else
+                {
+                    // Случай 3: Правый ребенок брата черный
+                    if (GetColor(sibling.Right) == BLACK)
+                    {
+                        if (sibling.Left != null)
+                            sibling.Left.Color = BLACK;
+                        sibling.Color = RED;
+                        RightRotate(sibling);
+                        sibling = node.Parent.Right;
+                    }
+
+                    // Случай 4: Правый ребенок брата красный
+                    sibling.Color = GetColor(node.Parent);
+                    node.Parent.Color = BLACK;
+                    if (sibling.Right != null)
+                        sibling.Right.Color = BLACK;
+                    LeftRotate(node.Parent);
+                    node = Root;
+                }
+            }
+            else
+            {
+                // Симметричный случай
+                var sibling = node.Parent.Left;
+
+                if (GetColor(sibling) == RED)
+                {
+                    sibling.Color = BLACK;
+                    node.Parent.Color = RED;
+                    RightRotate(node.Parent);
+                    sibling = node.Parent.Left;
+                }
+
+                if (GetColor(sibling.Right) == BLACK && GetColor(sibling.Left) == BLACK)
+                {
+                    sibling.Color = RED;
+                    node = node.Parent;
+                }
+                else
+                {
+                    if (GetColor(sibling.Left) == BLACK)
+                    {
+                        if (sibling.Right != null)
+                            sibling.Right.Color = BLACK;
+                        sibling.Color = RED;
+                        LeftRotate(sibling);
+                        sibling = node.Parent.Left;
+                    }
+
+                    sibling.Color = GetColor(node.Parent);
+                    node.Parent.Color = BLACK;
+                    if (sibling.Left != null)
+                        sibling.Left.Color = BLACK;
+                    RightRotate(node.Parent);
+                    node = Root;
+                }
+            }
+        }
+        node.Color = BLACK;
+    }
+
+    private void TransplantNode(NodeTreeRedBlack<T> u, NodeTreeRedBlack<T> v)
+    {
+        if (u.Parent == null)
+            Root = v;
+        else if (u == u.Parent.Left)
+            u.Parent.left = v;
+        else
+            u.Parent.right = v;
+
+        if (v != null)
+            v.Parent = u.Parent;
+    }
+
+    private NodeTreeRedBlack<T> FindMin(NodeTreeRedBlack<T> node)
+    {
+        while (node.Left != null)
+            node = node.Left;
+        return node;
+    }
+
+    private bool GetColor(NodeTreeRedBlack<T> node)
+    {
+        return node == null ? BLACK : node.Color;
     }
 
     public void AddRange(T[] values)
@@ -235,8 +380,7 @@ public class RedBlackTree2<T> : BinaryAVLTree<T> where T : IComparable<T>
         foreach (T value in values)
             Add(value);
     }
-
-    public override string ToString()
+    public static string GetVisualizeStringTree(NodeTreeRedBlack<T> root)
     {
         // Константы для цветов ANSI
         const string RED = "\u001b[31m";
@@ -289,7 +433,7 @@ public class RedBlackTree2<T> : BinaryAVLTree<T> where T : IComparable<T>
                 {
                     string nodeValue = node.Value.ToString().PadRight(betweenSpaces + 1);
                     // Добавляем цвет для красных узлов
-                    if (node.Color == RedBlackTree2<T>.RED)
+                    if (node.Color == RedBlackTree<T>.RED)
                     {
                         builder.Append(RED + nodeValue + RESET);
                     }
@@ -328,54 +472,12 @@ public class RedBlackTree2<T> : BinaryAVLTree<T> where T : IComparable<T>
                 builder.AppendLine();
             }
         }
-        //builder.AppendLine($"ValidateRedNodesProperty: {ValidateRedNodesProperty(root)}");
-        //builder.AppendLine($"ValidateRedBlackProperties: {ValidateRedBlackProperties()}");
-        //builder.AppendLine($"ValidateBlackHeight: {ValidateRedNodesProperty(root)}");
         return builder.ToString();
     }
-    private bool ValidateBlackProperties()
+    public override string ToString()
     {
-        // Проверяем, что корень черный
-        if (root.Color != BLACK)
-            return false;
-
-        // Проверяем черную высоту
-        return GetBlackHeight(root) != -1;
-    }
-    private bool ValidateRedBlackProperties()
-    {
-        if (root.Color != BLACK)
-            return false;
-
-        // Проверка свойства: красный узел имеет черных детей
-        return ValidateRedNodesProperty(root) && ValidateBlackHeight(root) != -1;
+        return GetVisualizeStringTree(Root);
     }
 
-    private bool ValidateRedNodesProperty(NodeTreeRedBlack<T> node)
-    {
-        if (node == null)
-            return true;
 
-        if (node.Color == RED)
-        {
-            if (node.Left?.Color == RED || node.Right?.Color == RED)
-                return false;
-        }
-
-        return ValidateRedNodesProperty(node.Left) && ValidateRedNodesProperty(node.Right);
-    }
-
-    private int ValidateBlackHeight(NodeTreeRedBlack<T> node)
-    {
-        if (node == null)
-            return 0;
-
-        int leftHeight = ValidateBlackHeight(node.Left);
-        int rightHeight = ValidateBlackHeight(node.Right);
-
-        if (leftHeight == -1 || rightHeight == -1 || leftHeight != rightHeight)
-            return -1;
-
-        return (node.Color == BLACK) ? leftHeight + 1 : leftHeight;
-    }
 }

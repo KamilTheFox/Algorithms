@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-//Реализация красночерного дерева по тупому. Эффективность примерно O(N^2)
-public class RedBlackTree1<T> : BinaryAVLTree<T> where T : IComparable<T>
+//Реализация загрлушки для красночерного дерева. Симулирет поведение красно-черного дерева
+public class RedBlackTreeFake<T> : BinaryAVLTree<T> where T : IComparable<T>
 {
     private const bool RED = true;
     private const bool BLACK = false;
@@ -164,96 +164,6 @@ public class RedBlackTree1<T> : BinaryAVLTree<T> where T : IComparable<T>
 
     public override string ToString()
     {
-        // Константы для цветов ANSI
-        const string RED = "\u001b[31m";
-        const string RESET = "\u001b[0m";
-
-        List<NodeTreeRedBlack<T>[]> resultTree = new List<NodeTreeRedBlack<T>[]>();
-
-        Stack<NodeTreeRedBlack<T>[]> stack = new Stack<NodeTreeRedBlack<T>[]>();
-        stack.Push(new NodeTreeRedBlack<T>[] { Root });
-        while (stack.Count > 0)
-        {
-            NodeTreeRedBlack<T>[] nodes = stack.Pop();
-            resultTree.Add(nodes);
-            List<NodeTreeRedBlack<T>> currentLevel = new List<NodeTreeRedBlack<T>>();
-
-            foreach (NodeTreeRedBlack<T> node in nodes)
-            {
-                if (node == null)
-                {
-                    currentLevel.Add(null);
-                    currentLevel.Add(null);
-                    continue;
-                }
-                currentLevel.Add((NodeTreeRedBlack<T>)node.left);
-                currentLevel.Add((NodeTreeRedBlack<T>)node.right);
-            }
-            if (currentLevel.Any(n => n != null))
-            {
-                stack.Push(currentLevel.ToArray());
-            }
-        }
-
-        StringBuilder builder = new StringBuilder();
-        int maxVertical = resultTree.Count;
-
-        for (int i = 0; i < resultTree.Count; i++)
-        {
-            var arr = resultTree[i];
-            int spaces = (int)Math.Pow(2, maxVertical - i - 1) - 1;
-            int betweenSpaces = (int)Math.Pow(2, maxVertical - i) - 1;
-
-            builder.Append(new string(' ', spaces));
-            foreach (NodeTreeRedBlack<T> node in arr)
-            {
-                if (node == null)
-                {
-                    builder.Append(new string(' ', betweenSpaces + 1));
-                }
-                else
-                {
-                    string nodeValue = node.Value.ToString().PadRight(betweenSpaces + 1);
-                    // Добавляем цвет для красных узлов
-                    if (node.Color == RedBlackTree1<T>.RED)
-                    {
-                        builder.Append(RED + nodeValue + RESET);
-                    }
-                    else
-                    {
-                        builder.Append(nodeValue);
-                    }
-                }
-            }
-            builder.AppendLine();
-
-            if (i < resultTree.Count - 1)
-            {
-                int leftPadding = spaces / 2;
-                builder.Append(new string(' ', leftPadding));
-                for (int k = 0; k < arr.Length; k++)
-                {
-                    NodeTreeRedBlack<T> node = arr[k];
-                    int lineLength = Math.Max(0, (betweenSpaces - 1) / 4);
-                    if (node != null && (node.left != null || node.right != null))
-                    {
-                        builder.Append('\u2554');
-                        builder.Append(new string('\u2550', lineLength));
-                        builder.Append('\u2569');
-                        builder.Append(new string('\u2550', lineLength));
-                        builder.Append('\u2557');
-                        int len = betweenSpaces - lineLength * 2 - i;
-                        if (len < 0) len = 0;
-                        builder.Append(new string(' ', len));
-                    }
-                    else
-                    {
-                        builder.Append(new string(' ', betweenSpaces + 1));
-                    }
-                }
-                builder.AppendLine();
-            }
-        }
-        return builder.ToString();
+        return RedBlackTree<T>.GetVisualizeStringTree(Root);
     }
 }

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DataStruct;
+﻿using DataStruct;
+using Edge = BellmanFord.Edge;
 
-public class DZ
+public class UnitTests
 {
     public static void StartTask1()
     {
@@ -28,7 +24,7 @@ public class DZ
         Console.WriteLine("Проверяю на удаление");
         Console.WriteLine(singleLinked.ToString());
 
-        //Делаю Копию
+        //Делаю Копию для сравнения
         IMyData<int> singleLinkedClone = (IMyData<int>)singleLinked.Clone();
 
         Console.WriteLine("Делаю инверсию");
@@ -36,7 +32,7 @@ public class DZ
 
         Console.WriteLine("Сравнение инверсии с LINQ");
         Console.WriteLine("My Reverse: " +  singleLinked.ToString());
-        Console.WriteLine("System Reverse: " + String.Join(", ", singleLinkedClone.ToArray().Reverse()));
+        Console.WriteLine("LINQ Reverse: " + String.Join(", ", singleLinkedClone.ToArray().Reverse()));
 
         Console.WriteLine("");
     }
@@ -76,7 +72,7 @@ public class DZ
 
         Console.WriteLine("Вывожу инвертированный отсортированный список список");
 
-        test.ToList().ForEach((i) => Console.Write(", " + i.ToString()));
+        Console.WriteLine(String.Join(", " , test.ToList()));
 
         Console.WriteLine();
     }
@@ -85,7 +81,7 @@ public class DZ
     {
         Console.WriteLine("Создаю рандомное красно-черное дерево");
 
-        IMyData<int> test = new RedBlackTree2<int>();
+        IMyData<int> test = new RedBlackTree<int>();
 
         test.AddRange(new int[10].Select(x => new Random().Next(0,20)).ToArray());
 
@@ -98,7 +94,7 @@ public class DZ
 
         Console.WriteLine("Создаю словарик");
 
-        IDictionary<string, string> dictionaryTree = new DictionaryTree<string, string>();
+        IDictionary<string, string> dictionaryTree = new DictionaryTree<string, string>(1);
 
         dictionaryTree.Add("0", "Ноль");
         dictionaryTree.Add("1", "Один");
@@ -157,11 +153,12 @@ public class DZ
         var graph = new BellmanFord();
 
         // Добавляем рёбра
-        graph.Add(new BellmanFord.Edge { Source = 0, Destination = 1, Weight = 4 });
-        graph.Add(new BellmanFord.Edge { Source = 0, Destination = 2, Weight = 2 });
-        graph.Add(new BellmanFord.Edge { Source = 1, Destination = 2, Weight = -3 });
-        graph.Add(new BellmanFord.Edge { Source = 2, Destination = 3, Weight = 2 });
-        graph.Add(new BellmanFord.Edge { Source = 3, Destination = 1, Weight = 1 });
+
+        graph.Add(new Edge { Source = 0, Destination = 1, Weight = 4 });
+        graph.Add(new Edge { Source = 0, Destination = 2, Weight = 2 });
+        graph.Add(new Edge { Source = 1, Destination = 2, Weight = -3 });
+        graph.Add(new Edge { Source = 2, Destination = 3, Weight = 2 });
+        graph.Add(new Edge { Source = 3, Destination = 1, Weight = 1 });
 
         // Выводим структуру графа
         graph.PrintGraph();
@@ -169,4 +166,34 @@ public class DZ
         // Ищем и выводим кратчайшие пути
         graph.PrintShortestPaths(0);
     }
+
+    public static void StartTask_8()
+    {
+        double[,] costMatrix = new double[,]
+        {
+            { 5, 7, 1 },
+            { 2, 3, 3 },
+            { 3, 1, 2 }
+        };
+        Console.WriteLine("Исходная матрица");
+        int rows = costMatrix.GetLength(0);
+        int cols = costMatrix.GetLength(1);
+
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                Console.Write(costMatrix[i, j] + "\t");
+            }
+            Console.WriteLine();
+        }
+
+        Console.WriteLine("\nвывод\n");
+
+        var hungarian = new HungarianAlgorithm(costMatrix);
+        int[] assignments = hungarian.FindAssignments();
+
+        Console.WriteLine(String.Join(", ",assignments));
+    }
+
 }

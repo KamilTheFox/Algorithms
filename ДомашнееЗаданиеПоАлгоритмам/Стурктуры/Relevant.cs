@@ -1,15 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DataStruct
+﻿namespace DataStruct
 {
     public static class Relevant
     {
-        static List<int[]> objects = new List<int[]>();
+        private class RelevantObject
+        {
+            public int Index { get; set; }
+            public long Relevance { get; set; }
+            public int[] Features { get; set; }
+        }
+
+        static List<RelevantObject> sortedObjects = new List<RelevantObject>();
+
+        static RelevantObject[] objects;
+
         static int[] parameters;
+
         static int n;
 
         public static void ReadInput()
@@ -22,10 +27,20 @@ namespace DataStruct
             Console.WriteLine("Введите количество параметров");
             int d = int.Parse(Console.ReadLine());
             Console.WriteLine($"Введите для {d} объектов {n} параметров");
+
+            objects = new RelevantObject[d];
             for (int i = 0; i < d; i++)
             {
-                objects.Add(Array.ConvertAll(Console.ReadLine().Split(), int.Parse));
+                var features = Array.ConvertAll(Console.ReadLine().Split(), int.Parse);
+                objects[i] = new RelevantObject
+                {
+                    Index = i + 1,
+                    Features = features,
+                    Relevance = CalculateRelevance(features)
+                };
             }
+
+            sortedObjects = objects.OrderByDescending(x => x.Relevance).ToList();
         }
 
         public static void ProcessQueries()
@@ -46,18 +61,57 @@ namespace DataStruct
                     int objIndex = int.Parse(query[1]) - 1;
                     int featureIndex = int.Parse(query[2]) - 1;
                     int newValue = int.Parse(query[3]);
-                    objects[objIndex][featureIndex] = newValue;
+                    UpdateObject(objIndex, featureIndex, newValue);
                 }
             }
         }
 
+        static void UpdateObject(int objIndex, int featureIndex, int newValue)
+        {
+            // Обновляем данные
+            objects[objIndex].Features[featureIndex] = newValue;
+            // Считаем новую релевантность
+            objects[objIndex].Relevance = CalculateRelevance(objects[objIndex].Features);
+
+            // Ищем позицию для вставки по бинарному поиску
+            int left = 0;
+            int right = sortedObjects.Count - 1;
+            int insertPosition = 0;
+
+            while (left <= right)
+            {
+                int mid = left + (right - left) / 2;
+                var newRelevance = objects[objIndex].Relevance;
+                if (sortedObjects[mid].Relevance == newRelevance)
+                {
+                    insertPosition = mid;
+                    break;
+                }
+
+                if (sortedObjects[mid].Relevance < newRelevance)
+                {
+                    right = mid - 1;
+                    insertPosition = mid;
+                }
+                else
+                {
+                    left = mid + 1;
+                    insertPosition = left;
+                }
+            }
+
+            // Удаляем старую позицию
+            int oldPosition = sortedObjects.FindIndex(x => x.Index == objIndex + 1);
+            if (oldPosition != -1)
+                sortedObjects.RemoveAt(oldPosition);
+
+            // Вставляем в новую позицию сам объект из objectsById
+            sortedObjects.Insert(insertPosition, objects[objIndex]);
+        }
+
         static void PrintTopK(int k)
         {
-            var relevances = objects.Select((obj, index) => new { Index = index + 1, Relevance = CalculateRelevance(obj) }) //преобразоание объектов в релевантрость
-                                    .OrderByDescending(x => x.Relevance)// сортировка по убыванию
-                                    .Take(k);//берем первые 3 элемента
-
-            Console.WriteLine(string.Join(" ", relevances.Select(x => x.Index)));
+            Console.WriteLine(string.Join(" ", sortedObjects.Take(k).Select(x => x.Index)));
         }
 
         static long CalculateRelevance(int[] obj)

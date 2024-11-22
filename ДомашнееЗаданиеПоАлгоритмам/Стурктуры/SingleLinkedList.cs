@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections;
 
-public class SingleLinkedList<T> : IMyData<T> ,IEnumerable<T> where T : IComparable<T>
+public class SingleLinkedList<T> : IMyData<T>, IEnumerable<T> where T : IComparable<T>
 {
     //Служебный класс для удобства перечисления
     private class EnumeratorLinkedList : IEnumerator<T>
@@ -37,7 +32,7 @@ public class SingleLinkedList<T> : IMyData<T> ,IEnumerable<T> where T : ICompara
                 CurrentNode = list.head;
                 return true;
             }
-            if(CurrentNode.nextNode == null)
+            if (CurrentNode.nextNode == null)
                 return false;
             CurrentNode = CurrentNode.nextNode;
             iterator++;
@@ -49,7 +44,7 @@ public class SingleLinkedList<T> : IMyData<T> ,IEnumerable<T> where T : ICompara
             Dispose();
         }
     }
-    
+
     private Node? head;
 
     private Node? tail;
@@ -79,15 +74,15 @@ public class SingleLinkedList<T> : IMyData<T> ,IEnumerable<T> where T : ICompara
 
     public void AddRange(T[] objs)
     {
-        foreach(var obj in objs)
+        foreach (var obj in objs)
             Add(obj);
     }
     //Поиск нод по содержимому
-    private (Node?,Node?) FindDataNode(T searchObj)
+    private (Node?, Node?) FindDataNode(T searchObj)
     {
         Node? parentNode = null;
         Node? currentNode = head;
-        while(currentNode != null)
+        while (currentNode != null)
         {
             if (EqualityComparer<T>.Default.Equals(currentNode.Value, searchObj))
                 return (parentNode, currentNode);
@@ -160,7 +155,7 @@ public class SingleLinkedList<T> : IMyData<T> ,IEnumerable<T> where T : ICompara
     public void Reverse()
     {
         if (head == null || head.nextNode == null)
-            return; 
+            return;
         Node previous = null;
         Node current = head;
         tail = current;

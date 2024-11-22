@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-public class BellmanFord
+﻿public class BellmanFord
 {
     public struct Edge
     {
@@ -32,7 +26,7 @@ public class BellmanFord
     }
     public int[] FindShortestPaths(int source)
     {
-        if(!vertexes.Contains(source))
+        if (!vertexes.Contains(source))
         {
             Console.WriteLine("\u001b[31m Нет такой вершины в графе\u001b[0m");
             return new int[0];
